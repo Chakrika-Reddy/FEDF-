@@ -1,0 +1,168 @@
+import React, { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import { AppStateProvider } from './context/AppStateContext';
+
+// Core layout components
+import Sidebar from './components/Sidebar';
+import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import NotificationToast from './components/NotificationToast';
+
+// Auth Pages
+import LandingPage from './pages/LandingPage';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import PatientLogin from './pages/PatientLogin';
+
+// Dashboard Module Pages
+import Dashboard from './pages/Dashboard';
+import PatientDashboard from './pages/PatientDashboard';
+import PatientLayout from './components/PatientLayout';
+import Patients from './pages/Patients';
+import MealPlanner from './pages/MealPlanner';
+import Kitchen from './pages/Kitchen';
+import Approvals from './pages/Approvals';
+import Inventory from './pages/Inventory';
+import Reports from './pages/Reports';
+import History from './pages/History';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
+
+// Unified Inner Layout Wrapper
+function DashboardLayout({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+      <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      <div className="lg:pl-64 flex flex-col min-h-screen">
+        <Navbar toggleSidebar={toggleSidebar} />
+        <main className="flex-1 p-5 md:p-6 lg:p-8 max-w-7xl w-full mx-auto animate-fade-in">
+          {children}
+        </main>
+      </div>
+      <NotificationToast />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <AppStateProvider>
+          <Routes>
+            {/* Public Marketing Landing Page */}
+            <Route path="/" element={<LandingPage />} />
+
+            {/* Public Auth Pages */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/patient-login" element={<PatientLogin />} />
+
+            {/* Protected Core App Dashboard Routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <DashboardLayout><Dashboard /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/patient-dashboard" element={
+              <ProtectedRoute allowedRoles={['Patient', 'Admin']}>
+                <PatientLayout><PatientDashboard /></PatientLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/my-diet" element={
+              <ProtectedRoute allowedRoles={['Patient']}>
+                <PatientLayout><PatientDashboard /></PatientLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/meal-history" element={
+              <ProtectedRoute allowedRoles={['Patient']}>
+                <PatientLayout><PatientDashboard /></PatientLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/doctor-notes" element={
+              <ProtectedRoute allowedRoles={['Patient']}>
+                <PatientLayout><PatientDashboard /></PatientLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/profile" element={
+              <ProtectedRoute allowedRoles={['Patient']}>
+                <PatientLayout><PatientDashboard /></PatientLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/patients" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Doctor', 'Dietician']}>
+                <DashboardLayout><Patients /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/meal-planner" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Dietician']}>
+                <DashboardLayout><MealPlanner /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/kitchen" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Kitchen Staff', 'Dietician']}>
+                <DashboardLayout><Kitchen /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/approvals" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Doctor', 'Dietician']}>
+                <DashboardLayout><Approvals /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/inventory" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Kitchen Staff', 'Dietician']}>
+                <DashboardLayout><Inventory /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/reports" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Doctor', 'Dietician']}>
+                <DashboardLayout><Reports /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/history" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Doctor', 'Dietician']}>
+                <DashboardLayout><History /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/analytics" element={
+              <ProtectedRoute allowedRoles={['Admin', 'Doctor', 'Dietician']}>
+                <DashboardLayout><Analytics /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <DashboardLayout><Settings /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
+            {/* Fallback Route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AppStateProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;

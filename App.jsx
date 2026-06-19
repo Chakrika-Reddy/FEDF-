@@ -1,0 +1,1 @@
+/* Empty out default App.css in favor of tailwind classes in index.css */
